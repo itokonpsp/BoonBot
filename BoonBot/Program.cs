@@ -14,6 +14,8 @@ builder.Services.AddSingleton(x => new InteractionService(x.GetRequiredService<D
 builder.Services.AddSingleton<MessageHandlingService>();
 builder.Services.AddSingleton<InteractionHandlingService>();
 
+builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: false);
+
 var host = builder.Build();
 host.Run();
 
