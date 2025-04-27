@@ -21,6 +21,7 @@ public class InteractionHandlingService
 
     public async Task InitializeAsync()
     {
+        _discordClient.Ready += OnReadyAsync;
         await _interaction.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
         _discordClient.InteractionCreated += HandleInteractionAsync;
     }
@@ -29,5 +30,17 @@ public class InteractionHandlingService
     {
         var context = new SocketInteractionContext(_discordClient, interaction);
         await _interaction.ExecuteCommandAsync(context, _services);
+    }
+    
+    private async Task OnReadyAsync()
+    {
+        if(_configuration["DOTNET_ENVIRONMENT"] == "Development")
+        {
+            await _interaction.RegisterCommandsToGuildAsync(ulong.Parse(_configuration["GuildId"]));
+        }
+        else
+        {
+            await _interaction.RegisterCommandsGloballyAsync();
+        }
     }
 }
