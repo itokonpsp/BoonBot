@@ -22,5 +22,12 @@ public class InteractionHandlingService
     public async Task InitializeAsync()
     {
         await _interaction.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+        _discordClient.InteractionCreated += HandleInteractionAsync;
+    }
+
+    private async Task HandleInteractionAsync(SocketInteraction interaction)
+    {
+        var context = new SocketInteractionContext(_discordClient, interaction);
+        await _interaction.ExecuteCommandAsync(context, _services);
     }
 }

@@ -12,6 +12,7 @@ builder.Services.AddHostedService<Worker>();
 builder.Services.AddSingleton<DiscordSocketClient>();
 builder.Services.AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()));
 builder.Services.AddSingleton<MessageHandlingService>();
+builder.Services.AddSingleton<InteractionHandlingService>();
 
 var host = builder.Build();
 host.Run();
@@ -23,3 +24,6 @@ await client.StartAsync();
 
 var messageHandlingService = host.Services.GetRequiredService<MessageHandlingService>();
 await messageHandlingService.InitializeAsync();
+
+var interactionHandlingService = host.Services.GetRequiredService<InteractionHandlingService>();
+await interactionHandlingService.InitializeAsync();
