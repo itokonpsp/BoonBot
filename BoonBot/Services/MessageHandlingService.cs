@@ -24,16 +24,23 @@ public class MessageHandlingService
 
     private async Task HandleMessageAsync(SocketMessage message)
     {
-        if (message is SocketUserMessage userMessage)
+        var userMessage = message as SocketUserMessage;
+        if (userMessage == null)
         {
-            var context = new SocketCommandContext(_discordClient, userMessage);
-            if (userMessage.MentionedUsers.Any(user => user.Id == _discordClient.CurrentUser.Id))
-            {
-                using var scope = _services.CreateScope();
-                var aiChatModule = new AiChatModule();
-                aiChatModule.SetContext(context);
-                await aiChatModule.RespondToMention();
-            }
+            return;
         }
+        var startPos = 0;
+        if(userMessage.HasMentionPrefix(_discordClient.CurrentUser, ref startPos) == false)
+        {
+            return;
+        }
+        if(userMessage.Author.IsBot)
+        {
+            return;
+        }
+        var context = new SocketCommandContext(_discordClient, userMessage);
+        var aiChat = _services.GetRequiredService<AiChatService>();
+        var response = await aiChat.GetResponseAsync(context.Message.Content[startPos..]);
+        await context.Channel.SendMessageAsync(response);
     }
 }

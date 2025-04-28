@@ -13,6 +13,7 @@ builder.Services.AddSingleton<DiscordSocketClient>();
 builder.Services.AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()));
 builder.Services.AddSingleton<MessageHandlingService>();
 builder.Services.AddSingleton<InteractionHandlingService>();
+builder.Services.AddSingleton<AiChatService>();
 
 builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: false);
 
