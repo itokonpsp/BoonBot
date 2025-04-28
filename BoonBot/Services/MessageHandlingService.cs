@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using Discord.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using BoonBot.Modules;
+using Discord;
 
 namespace BoonBot.Services;
 
@@ -41,6 +42,6 @@ public class MessageHandlingService
         var context = new SocketCommandContext(_discordClient, userMessage);
         var aiChat = _services.GetRequiredService<AiChatService>();
         var response = await aiChat.GetResponseAsync(context.Message.Content[startPos..]);
-        await context.Channel.SendMessageAsync(response);
+        await context.Message.ReplyAsync(response);
     }
 }
