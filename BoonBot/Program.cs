@@ -17,7 +17,6 @@ builder.Services.AddSingleton<InteractionHandlingService>();
 builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: false);
 
 var host = builder.Build();
-host.Run();
 
 var client = host.Services.GetRequiredService<DiscordSocketClient>();
 var config = host.Services.GetRequiredService<IConfiguration>();
@@ -29,3 +28,5 @@ await messageHandlingService.InitializeAsync();
 
 var interactionHandlingService = host.Services.GetRequiredService<InteractionHandlingService>();
 await interactionHandlingService.InitializeAsync();
+
+host.Run();
