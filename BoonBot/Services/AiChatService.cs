@@ -1,5 +1,6 @@
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 namespace BoonBot.Services;
 
@@ -15,7 +16,11 @@ public class AiChatService
     public async Task<string> GetResponseAsync(string input)
     {
         var chatCompletion = _kernel.GetRequiredService<IChatCompletionService>();
-        var response = await chatCompletion.GetChatMessageContentAsync(input, kernel: _kernel);
+        OpenAIPromptExecutionSettings openAiPromptExecutionSettings = new()
+        {
+            FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
+        };
+        var response = await chatCompletion.GetChatMessageContentAsync(input, openAiPromptExecutionSettings, _kernel);
         return response.Content ?? "";
     }
 }

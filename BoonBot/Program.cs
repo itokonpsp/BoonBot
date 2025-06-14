@@ -9,6 +9,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
+using Microsoft.SemanticKernel.Data;
+using Microsoft.SemanticKernel.Plugins.Web.Google;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Configuration.AddJsonFile("secrets.json", optional: true, reloadOnChange: false);
@@ -29,7 +31,32 @@ builder.Services.AddSingleton<IChatCompletionService>(services =>
     }
     return new OpenAIChatCompletionService(model, apiKey);
 });
-builder.Services.AddTransient<Kernel>(services => new Kernel(services));
+
+builder.Services.AddSingleton<KernelPlugin>(services =>
+{
+    var apiKey = services.GetRequiredService<IConfiguration>()["GoogleApiKey"];
+    var searchEngineId = services.GetRequiredService<IConfiguration>()["GoogleSearchEngineId"];
+    if (apiKey == null || searchEngineId == null)
+    {
+        throw new InvalidOperationException("Google API key or search engine ID is not configured.");
+    }
+
+#pragma warning disable SKEXP0050
+    var textSearch = new GoogleTextSearch(
+        searchEngineId: searchEngineId,
+        apiKey: apiKey
+    );
+#pragma warning restore SKEXP0050
+    return textSearch.CreateWithSearch("SearchPlugin");
+});
+
+builder.Services.AddTransient<Kernel>(services =>
+{
+    var plugins = new KernelPluginCollection();
+    var kernel = new Kernel(services, plugins);
+    kernel.Plugins.Add(services.GetRequiredService<KernelPlugin>());
+    return kernel;
+});
 
 var host = builder.Build();
 
